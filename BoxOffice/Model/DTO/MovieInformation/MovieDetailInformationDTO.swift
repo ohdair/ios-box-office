@@ -9,6 +9,17 @@ import UIKit
 
 struct MovieDetailInformationDTO: Decodable, Convertable {
     let movieInfoResult: MovieInfoResultDTO
+
+    enum CodingKeys: String, CodingKey {
+        case movieInfoResult
+    }
+}
+
+extension MovieDetailInformationDTO {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        movieInfoResult = try container.decode(MovieInfoResultDTO.self, forKey: .movieInfoResult)
+    }
 }
 
 extension MovieDetailInformationDTO {
@@ -21,6 +32,7 @@ extension MovieDetailInformationDTO {
         var genres = [String]()
         var actors = [String]()
         var nations = [String]()
+        var audits = String()
 
         if let existedNations = movieInformation?.nations {
             nations = existedNations.compactMap { nation in
@@ -33,8 +45,8 @@ extension MovieDetailInformationDTO {
             }
         }
         if let existedActor = movieInformation?.actors {
-            actors = existedActor.compactMap { actor in
-                actor.peopleName
+            actors = existedActor.compactMap { movieActor in
+                movieActor.peopleName
             }
         }
         if let existedDirector = movieInformation?.directors {
@@ -43,12 +55,17 @@ extension MovieDetailInformationDTO {
             }
         }
 
+        if let existedAudit = movieInformation?.audits {
+            audits = existedAudit.first?.watchGradeName ?? ""
+        }
+
         return MovieInformation(directors: directors,
                                 productYear: productYear,
                                 openDate: openDate,
                                 showTime: showTime,
                                 nations: nations,
                                 genres: genres,
-                                actors: actors)
+                                actors: actors,
+                                audits: audits)
     }
 }
